@@ -8,7 +8,7 @@
 -> Add environment variables to connect DB & we gone to constants file & named our database as "videotube"
 
 
-# setting up server & installing dependencies
+# connecting to Database & installing dependencies
 -> since we will gonna load a lot of things fom .env so we need to install "npm i dotenv" 
 -> later we gonna install mongoose & express
 -> we communicate with mongoDB through mongoose so , in order to smooth process try using async await & wrap with try catch
