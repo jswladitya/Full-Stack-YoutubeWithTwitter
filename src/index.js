@@ -1,5 +1,6 @@
 //CONNECTING TO DATABASE
-// require('dotenv').config({path: './env'}) //resolve it with import
+// require('dotenv').config({path: './env'}) //modify to work with import
+// so , just modify script in a dev script in package.json
 import dotenv from "dotenv"
 import connectDB from "./db/index.js"; //from db 
 
@@ -8,16 +9,18 @@ dotenv.config({
     path: './env'
 })
 
+
+//since connectDb is async, so async method jab complete hota he toh technically promise bhi return karta he
 connectDB()
-.then(() => {
-    app.listen(process.env.PORT || 8000 , ()=>{
-        console.log(`Server is listening at port : ${process.env.PORT}`);
+    .then(() => {
+        app.listen(process.env.PORT || 8000, () => {
+            console.log(`Server is listening at port : ${process.env.PORT}`);
+        })
     })
-})
-.catch((err) => {
-    console.log("MongoDB connection failed !!!", err);
-    
-})
+    .catch((err) => {
+        console.log("MongoDB connection failed !!!", err);
+
+    })
 
 
 
@@ -51,6 +54,7 @@ const app = express()
         await mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}`)
 
         //Databse is now connected but incase database cannot talk with our express app
+        //so we can use event listeners , to listen error event
         app.on("error", (error) => {
             console.log("Error : Database failed to connect with server", error);
             throw error     
