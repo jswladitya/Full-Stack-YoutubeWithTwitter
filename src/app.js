@@ -23,4 +23,12 @@ app.use(express.static("public"))
 app.use(cookieParser())
 //cookieparser : our server needs to access users browser cookies 
 
+
+//import routes
+import userRouter from './routes/user.routes.js'
+
+//routes declaration - as a middleware
+app.use("/api/v1/users", userRouter) //'/users' pe koi bhi ayega to userRouter pe pass on kardenge and if waha pe '/register' hit hua to call hoga registerUser method
+//http://localhost:8000/api/v1/users/register
+
 export {app}

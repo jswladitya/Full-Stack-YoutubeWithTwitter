@@ -2,7 +2,8 @@
 // require('dotenv').config({path: './env'}) //modify to work with import
 // so , just modify script in a dev script in package.json
 import dotenv from "dotenv"
-import connectDB from "./db/index.js"; //from db 
+import connectDB from "./db/index.js"; //from db
+import {app} from './app.js'
 
 //configure .env 
 dotenv.config({
