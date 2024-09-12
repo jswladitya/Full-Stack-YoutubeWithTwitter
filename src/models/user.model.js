@@ -100,6 +100,7 @@ userSchema.methods.generateRefreshToken = function(){
 
 
 export const User = mongoose.model("User", userSchema)
+// this User model can directly communicate with db because it is made with mongoose 
 
 
 //NOTE : installing bcrypt (helps to hash your password) & jsonwebtoken (like a key, jiske bhi pass ye token he mei use data bhej dunga) 
