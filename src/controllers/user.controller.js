@@ -1,5 +1,5 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
-import ApiError from "../utils/ApiError.js"
+import {ApiError} from "../utils/ApiError.js"
 import {User} from "../models/user.model.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -36,7 +36,7 @@ const registerUser = asyncHandler( async(req, res)=>{
 
 
     //3. check for user exists or not
-    const existedUser = User.findOne({
+    const existedUser = await User.findOne({
         //it is like ye username ya email already exists karta he app dusra use karo
         //use $or parameter & jitni bhi cheeze check karni he un sabhi ko check karalo in the object
         $or : [{username}, {email}]
@@ -49,7 +49,12 @@ const registerUser = asyncHandler( async(req, res)=>{
 
     // 4. check for images , check for avatar
     const avatarLocalPath = req.files?.avatar[0]?.path;
-    const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    // const coverImageLocalPath = req.files?.coverImage[0]?.path;
+
+    let coverImageLocalPath;
+    if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
+        coverImageLocalPath = req.files.coverImage[0].path
+    }
 
     if(!avatarLocalPath){
         throw new ApiError(400, "Avatar file is required")
@@ -96,3 +101,5 @@ const registerUser = asyncHandler( async(req, res)=>{
 
 
 export {registerUser}
+
+//testing register controller through postman 
