@@ -1,12 +1,12 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
-import {ApiError} from "../utils/ApiError.js"
-import {User} from "../models/user.model.js"
+import { ApiError } from "../utils/ApiError.js"
+import { User } from "../models/user.model.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
 
 //by passing the userid , this method will automatically find the user based on userid & it will generate access & refresh token , refresh token will get saved to database
-const generateAccessAndRefereshTokens = async(userId) =>{
+const generateAccessAndRefereshTokens = async (userId) => {
     try {
         const user = await User.findById(userId)
         const accessToken = user.generateAccessToken()
@@ -16,7 +16,7 @@ const generateAccessAndRefereshTokens = async(userId) =>{
         user.refreshToken = refreshToken
         await user.save({ validateBeforeSave: false })
 
-        return {accessToken, refreshToken}
+        return { accessToken, refreshToken }
 
 
     } catch (error) {
@@ -27,31 +27,31 @@ const generateAccessAndRefereshTokens = async(userId) =>{
 
 //Register user
 // const registerUser = asyncHandler()
-const registerUser = asyncHandler( async(req, res)=>{
-   // HOW TO REGISTER USER 
-   // 1. get user details from frontend
-   // 2. user ne details correct format me bheja he ya nahi --validation: by not empty
-   // 3. check if user already exists : by username, email
-   // 4. check for images , check for avatar
-   // 5. if he to upload them to cloudinary, check avatar upload
-   // 6. create user object - create entry in db
-   // 7. remove password & refresh token field from response 
-   // 8. check for user creation
-   // 9. return response
+const registerUser = asyncHandler(async (req, res) => {
+    // HOW TO REGISTER USER 
+    // 1. get user details from frontend
+    // 2. user ne details correct format me bheja he ya nahi --validation: by not empty
+    // 3. check if user already exists : by username, email
+    // 4. check for images , check for avatar
+    // 5. if he to upload them to cloudinary, check avatar upload
+    // 6. create user object - create entry in db
+    // 7. remove password & refresh token field from response 
+    // 8. check for user creation
+    // 9. return response
 
 
-   //lets begin
-   //1. get user details from frontend
-   const {fullName, email, username, password} = req.body 
-   //form se ya direct json se data aa raha he to req.body ke ander data mil jayega
-   //ham postman se email bhej rahe as a request server pe & use print krwa rah he
-//    console.log("email :" , email);
+    //lets begin
+    //1. get user details from frontend
+    const { fullName, email, username, password } = req.body
+    //form se ya direct json se data aa raha he to req.body ke ander data mil jayega
+    //ham postman se email bhej rahe as a request server pe & use print krwa rah he
+    //    console.log("email :" , email);
 
 
     //2. validation
-    if(
+    if (
         // inme se koi bhi field ager trim hone ke baad bhi empty ayi he 
-        [fullName, email, username, password].some((field)=> field?.trim() === "")
+        [fullName, email, username, password].some((field) => field?.trim() === "")
     ) {
         throw new ApiError(400, "All fields are required")
     }
@@ -61,9 +61,9 @@ const registerUser = asyncHandler( async(req, res)=>{
     const existedUser = await User.findOne({
         //it is like ye username ya email already exists karta he app dusra use karo
         //use $or parameter & jitni bhi cheeze check karni he un sabhi ko check karalo in the object
-        $or : [{username}, {email}]
+        $or: [{ username }, { email }]
     })
-    if (existedUser){
+    if (existedUser) {
         throw new ApiError(409, "user with email or username already exists")
     }
 
@@ -78,7 +78,7 @@ const registerUser = asyncHandler( async(req, res)=>{
         coverImageLocalPath = req.files.coverImage[0].path
     }
 
-    if(!avatarLocalPath){
+    if (!avatarLocalPath) {
         throw new ApiError(400, "Avatar file is required")
     }
 
@@ -88,7 +88,7 @@ const registerUser = asyncHandler( async(req, res)=>{
     const avatar = await uploadOnCloudinary(avatarLocalPath)
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
-    if(!avatar){
+    if (!avatar) {
         throw new ApiError(400, "Avatar file is required")
     }
 
@@ -110,7 +110,7 @@ const registerUser = asyncHandler( async(req, res)=>{
         "-password -refreshToken"
     )
 
-    if(!createdUser){
+    if (!createdUser) {
         throw new ApiError(500, "Something went wrong while regestering the user")
     }
 
@@ -119,11 +119,11 @@ const registerUser = asyncHandler( async(req, res)=>{
     return res.status(201).json(
         new ApiResponse(200, createdUser, "User regestered Successfully")
     )
-} )
+})
 
 
 //Login user
-const loginUser = asyncHandler ( async (req, res) => {
+const loginUser = asyncHandler(async (req, res) => {
     // 1. req.body se data le aao
     // 2. username or email check
     // 3. Find the user
@@ -132,7 +132,7 @@ const loginUser = asyncHandler ( async (req, res) => {
     // 6. send them to user in form of secure cookies
 
     // 1. req.body se data le aao
-    const {email, username, password} = req.body
+    const { email, username, password } = req.body
     console.log(email);
 
     // 2. username or email check
@@ -144,7 +144,7 @@ const loginUser = asyncHandler ( async (req, res) => {
     // 3. Find the user
     const user = await User.findOne({
         // i want to find user in a database based on username or email 
-        $or: [{username}, {email}]
+        $or: [{ username }, { email }]
     })
 
     //if firbhi user nahi mila
@@ -153,15 +153,15 @@ const loginUser = asyncHandler ( async (req, res) => {
     }
 
     // 4. if user he to password check karwao
-   const isPasswordValid = await user.isPasswordCorrect(password)
+    const isPasswordValid = await user.isPasswordCorrect(password)
 
-   if (!isPasswordValid) {
-    throw new ApiError(401, "Invalid user credentials")
+    if (!isPasswordValid) {
+        throw new ApiError(401, "Invalid user credentials")
     }
 
 
     // 5. if password exists then user exists so,  generate access & refresh token -> we made a method for that at the top because it gonna be used many times
-   const {accessToken, refreshToken} = await generateAccessAndRefereshTokens(user._id)
+    const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(user._id)
 
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
 
@@ -173,25 +173,48 @@ const loginUser = asyncHandler ( async (req, res) => {
     }
 
     return res
-    .status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
-    .json(
-        new ApiResponse(
-            200, 
-            {
-                user: loggedInUser, accessToken, refreshToken
-            },
-            "User logged In Successfully"
+        .status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json(
+            new ApiResponse(
+                200,
+                {
+                    user: loggedInUser, accessToken, refreshToken
+                },
+                "User logged In Successfully"
+            )
         )
-    )
-} )
+})
 
 
 //Logout user
-const logoutUser = asyncHandler
+const logoutUser = asyncHandler(async (req, res) => {
+    await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $unset: {
+                refreshToken: 1 // this removes the field from document
+            }
+        },
+        {
+            new: true
+        }
+    )
+
+    const options = {
+        httpOnly: true,
+        secure: true
+    }
+
+    return res
+        .status(200)
+        .clearCookie("accessToken", options)
+        .clearCookie("refreshToken", options)
+        .json(new ApiResponse(200, {}, "User logged Out"))
+})
 
 
-export {registerUser, loginUser}
+export { registerUser, loginUser, logoutUser }
 
 //testing controller through postman 
