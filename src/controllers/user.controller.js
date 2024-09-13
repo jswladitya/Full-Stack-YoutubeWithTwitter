@@ -4,6 +4,28 @@ import {User} from "../models/user.model.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
+
+//by passing the userid , this method will automatically find the user based on userid & it will generate access & refresh token , refresh token will get saved to database
+const generateAccessAndRefereshTokens = async(userId) =>{
+    try {
+        const user = await User.findById(userId)
+        const accessToken = user.generateAccessToken()
+        const refreshToken = user.generateRefreshToken()
+
+        //access token toh ham user ko dedete he & we save refresh token to aur database too , just to make sure baar baar password na puchna pade user se
+        user.refreshToken = refreshToken
+        await user.save({ validateBeforeSave: false })
+
+        return {accessToken, refreshToken}
+
+
+    } catch (error) {
+        throw new ApiError(500, "Something went wrong while generating referesh and access token")
+    }
+}
+
+
+//Register user
 // const registerUser = asyncHandler()
 const registerUser = asyncHandler( async(req, res)=>{
    // HOW TO REGISTER USER 
@@ -100,6 +122,76 @@ const registerUser = asyncHandler( async(req, res)=>{
 } )
 
 
-export {registerUser}
+//Login user
+const loginUser = asyncHandler ( async (req, res) => {
+    // 1. req.body se data le aao
+    // 2. username or email check
+    // 3. Find the user
+    // 4. if user he to password check karwao
+    // 5. if password check ho gya toh generate access & refresh token 
+    // 6. send them to user in form of secure cookies
 
-//testing register controller through postman 
+    // 1. req.body se data le aao
+    const {email, username, password} = req.body
+    console.log(email);
+
+    // 2. username or email check
+    if (!username && !email) {
+        throw new ApiError(400, "username or email is required")
+    }
+
+
+    // 3. Find the user
+    const user = await User.findOne({
+        // i want to find user in a database based on username or email 
+        $or: [{username}, {email}]
+    })
+
+    //if firbhi user nahi mila
+    if (!user) {
+        throw new ApiError(404, "User does not exist")
+    }
+
+    // 4. if user he to password check karwao
+   const isPasswordValid = await user.isPasswordCorrect(password)
+
+   if (!isPasswordValid) {
+    throw new ApiError(401, "Invalid user credentials")
+    }
+
+
+    // 5. if password exists then user exists so,  generate access & refresh token -> we made a method for that at the top because it gonna be used many times
+   const {accessToken, refreshToken} = await generateAccessAndRefereshTokens(user._id)
+
+    const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
+
+
+    //6. send them to user in form of secure cookies
+    const options = {
+        httpOnly: true,
+        secure: true
+    }
+
+    return res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(
+        new ApiResponse(
+            200, 
+            {
+                user: loggedInUser, accessToken, refreshToken
+            },
+            "User logged In Successfully"
+        )
+    )
+} )
+
+
+//Logout user
+const logoutUser = asyncHandler
+
+
+export {registerUser, loginUser}
+
+//testing controller through postman 
