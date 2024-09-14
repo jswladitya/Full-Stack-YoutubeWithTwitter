@@ -12,12 +12,13 @@ const generateAccessAndRefereshTokens = async (userId) => {
         const accessToken = user.generateAccessToken()
         const refreshToken = user.generateRefreshToken()
 
-        //access token toh ham user ko dedete he & we save refresh token to aur database too , just to make sure baar baar password na puchna pade user se
+        // since yaha user ek object he toh hamne bas ek naya entry ie refreshToken add kardia he
         user.refreshToken = refreshToken
+
+        // user ko DB me save bhi karana hota he
         await user.save({ validateBeforeSave: false })
 
         return { accessToken, refreshToken }
-
 
     } catch (error) {
         throw new ApiError(500, "Something went wrong while generating referesh and access token")
@@ -155,7 +156,7 @@ const loginUser = asyncHandler(async (req, res) => {
         throw new ApiError(404, "User does not exist")
     }
 
-    // 4. if user he to password check karwao
+    // 4. user he to password check karwao
     const isPasswordValid = await user.isPasswordCorrect(password)
 
     if (!isPasswordValid) {
@@ -163,7 +164,8 @@ const loginUser = asyncHandler(async (req, res) => {
     }
 
 
-    // 5. if password exists then user exists so,  generate access & refresh token -> we made a method for that at the top because it gonna be used many times
+    // 5. if password exists then generate access & refresh token 
+    // since hame is method se dono tokens milenge so, hamne destructure karke le lia
     const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(user._id)
 
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
@@ -171,10 +173,12 @@ const loginUser = asyncHandler(async (req, res) => {
 
     //6. send them to user in form of secure cookies
     const options = {
+        // in options ka matlab ye cookies sirf server se modifyable hoti he
         httpOnly: true,
         secure: true
     }
 
+    // cookie(key, value, other 3rd parameter)
     return res
         .status(200)
         .cookie("accessToken", accessToken, options)
@@ -183,6 +187,7 @@ const loginUser = asyncHandler(async (req, res) => {
             new ApiResponse(
                 200,
                 {
+                    // user: loggedInUser,
                     user: loggedInUser, accessToken, refreshToken
                 },
                 "User logged In Successfully"
@@ -191,8 +196,13 @@ const loginUser = asyncHandler(async (req, res) => {
 })
 
 
+
 //Logout user
 const logoutUser = asyncHandler(async (req, res) => {
+    // 1. remove cookies from server
+    // 2. user model ke ander ka refreshToken bhi reset krna padega
+
+    //taking use of auth middleware because we dont have user access
     await User.findByIdAndUpdate(
         req.user._id,
         {
