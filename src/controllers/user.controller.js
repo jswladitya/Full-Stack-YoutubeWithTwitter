@@ -29,11 +29,11 @@ const generateAccessAndRefereshTokens = async (userId) => {
 // const registerUser = asyncHandler()
 const registerUser = asyncHandler(async (req, res) => {
     // HOW TO REGISTER USER 
-    // 1. get user details from frontend
+    // 1. get user details from frontend or postman
     // 2. user ne details correct format me bheja he ya nahi --validation: by not empty
-    // 3. check if user already exists : by username, email
+    // 3. check if user already exists : by username, email -taki baad me msg show kar paye ki aapka account toh already exist karta he
     // 4. check for images , check for avatar
-    // 5. if he to upload them to cloudinary, check avatar upload
+    // 5. if he to upload them to cloudinary, check avatar upload on cloudinary
     // 6. create user object - create entry in db
     // 7. remove password & refresh token field from response 
     // 8. check for user creation
@@ -42,6 +42,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
     //lets begin
     //1. get user details from frontend
+    // yaha ham file handling nahi karrahe wo ham karenga directly routes me
     const { fullName, email, username, password } = req.body
     //form se ya direct json se data aa raha he to req.body ke ander data mil jayega
     //ham postman se email bhej rahe as a request server pe & use print krwa rah he
@@ -59,7 +60,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
     //3. check for user exists or not
     const existedUser = await User.findOne({
-        //it is like ye username ya email already exists karta he app dusra use karo
+        //it is like ye username ya email already exists karta he aap dusra use karo
         //use $or parameter & jitni bhi cheeze check karni he un sabhi ko check karalo in the object
         $or: [{ username }, { email }]
     })
@@ -68,11 +69,12 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
 
-
     // 4. check for images , check for avatar
+    // since we are using multer so multer bhi req.files ka access deta he
     const avatarLocalPath = req.files?.avatar[0]?.path;
-    // const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    // avatar ka path jo multer ne upload kara he server pe wo hame mil jayega kyuki hamne mention kia he multer ke code me
 
+    // const coverImageLocalPath = req.files?.coverImage[0]?.path;
     let coverImageLocalPath;
     if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
         coverImageLocalPath = req.files.coverImage[0].path
@@ -103,13 +105,14 @@ const registerUser = asyncHandler(async (req, res) => {
         username: username.toLowerCase()
     })
 
-    // 7 , 8
-    //checking user successfully create hua he ya nahi
+    // 7. remove password & refresh token field from response 
+    //NOTE: jo apne new user ki entry create kari he n db me MnogoDB har ek entry ke sath _id naam ka field add kar deta he  
     const createdUser = await User.findById(user._id).select(
-        // kya kya nahi chahiye
+        // user ka saara data chahiye but password aur refresh token nahi chahiye
         "-password -refreshToken"
     )
-
+    
+    // 8. checking user successfully create hua he ya nahi
     if (!createdUser) {
         throw new ApiError(500, "Something went wrong while regestering the user")
     }
