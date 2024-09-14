@@ -8,6 +8,7 @@ const router = Router()
 
 // router.route("/register").post(registerUser) //just register ke pehle middleware laga do
 router.route("/register").post(
+    // jaise hi user register kar lega usse avatar aur coverImage upload karwayenge using multer middleware
     upload.fields([
         {
             name : "avatar",

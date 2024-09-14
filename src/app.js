@@ -27,7 +27,7 @@ app.use(cookieParser())
 //import routes
 import userRouter from './routes/user.routes.js'
 
-//routes declaration - as a middleware
+//routes declaration
 app.use("/api/v1/users", userRouter) //'/users' pe koi bhi ayega to userRouter pe pass on kardenge and if waha pe '/register' hit hua to call hoga registerUser method
 //http://localhost:8000/api/v1/users/register
 
