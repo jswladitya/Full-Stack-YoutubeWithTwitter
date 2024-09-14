@@ -13,6 +13,7 @@ dotenv.config({
 
 //since connectDb is async, so async method jab complete hota he toh technically promise bhi return karta he
 connectDB()
+// database to connect hogya but, hamari app ne us database ka use karte hue abhi listen karna shuru nhai kia tha
     .then(() => {
         app.listen(process.env.PORT || 8000, () => {
             console.log(`Server is listening at port : ${process.env.PORT}`);

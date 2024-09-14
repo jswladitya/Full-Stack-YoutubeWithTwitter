@@ -1,3 +1,4 @@
+//we are going to upload files to our local server through multer
 import multer from "multer";
 
 const storage = multer.diskStorage({

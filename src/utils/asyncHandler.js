@@ -31,6 +31,7 @@ export { asyncHandler }
 
 // const asyncHandler = (function) => async (req, res, next) => {
 //     try {
+            // jo function pass karwaya he use execute karwa do
 //         await function (req, res, next)
 //     } catch (error) {
 //         res.status(err.code || 500).json({

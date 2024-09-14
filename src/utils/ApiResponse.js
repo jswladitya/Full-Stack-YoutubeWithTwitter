@@ -1,3 +1,4 @@
+//kisiko bhi response bhejnge to isi class ke through hi bhejenge
 class ApiResponse {
     constructor(statusCode, data, message = "Success"){
         this.statusCode = statusCode
