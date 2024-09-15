@@ -199,22 +199,26 @@ const loginUser = asyncHandler(async (req, res) => {
 
 //Logout user
 const logoutUser = asyncHandler(async (req, res) => {
-    // 1. remove cookies from server
-    // 2. user model ke ander ka refreshToken bhi reset krna padega
+    // 1. user model ke ander ka refreshToken bhi reset krna padega
+    // 2. remove cookies from server
 
     //taking use of auth middleware because we dont have user access
     await User.findByIdAndUpdate(
+        // 1. user model ke ander ka refreshToken bhi reset krna padega
         req.user._id,
         {
-            $unset: {
-                refreshToken: 1 // this removes the field from document
+            $set: {
+                refreshToken: undefined 
+                // this removes the field from document
             }
         },
         {
             new: true
+            // return me jo value milega wo ne updated value milegi
         }
     )
 
+    // 2. remove cookies from server
     const options = {
         httpOnly: true,
         secure: true
