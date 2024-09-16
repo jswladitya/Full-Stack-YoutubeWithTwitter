@@ -200,12 +200,9 @@ const loginUser = asyncHandler(async (req, res) => {
 
 //Logout user
 const logoutUser = asyncHandler(async (req, res) => {
-    // 1. user model ke ander ka refreshToken bhi reset krna padega
-    // 2. remove cookies from server
-
-    //taking use of auth middleware because we dont have user access
+    //taking use of auth middleware because we dont have user access so we did is , aap login the ,aapka access token tha, mene database me query mari ek req.user add kar dia 
     await User.findByIdAndUpdate(
-        // 1. user model ke ander ka refreshToken bhi reset krna padega
+        // 1. remove refreshToken 
         req.user._id,
         {
             $set: {
@@ -215,7 +212,7 @@ const logoutUser = asyncHandler(async (req, res) => {
         },
         {
             new: true
-            // return me jo value milega wo ne updated value milegi
+            // return me jo value milega wo new updated value hogi
         }
     )
 
@@ -232,6 +229,8 @@ const logoutUser = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, {}, "User logged Out"))
 })
 
+
+// jab user login karta he toh us point per ek naya access token generate kia jata he us user ke lie wo ho pata he ager user ke pass ya uske browser me already refreshToken ho taki user ko baar baar apna username ya password na dena pade login karwane ke lie
 const refreshAccessToken = asyncHandler( async(req, res) =>{
     const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
 
@@ -256,13 +255,14 @@ const refreshAccessToken = asyncHandler( async(req, res) =>{
             
         }
     
+        //hamne yaha new access & refresh token generate karwaya & refreshToken ko DB me save karwa lia
+        const {accessToken, newRefreshToken} = await generateAccessAndRefereshTokens(user._id)
+
         const options = {
             httpOnly: true,
             secure: true
         }
-    
-        const {accessToken, newRefreshToken} = await generateAccessAndRefereshTokens(user._id)
-    
+        
         return res
         .status(200)
         .cookie("accessToken", accessToken, options)
@@ -279,7 +279,6 @@ const refreshAccessToken = asyncHandler( async(req, res) =>{
     }
 })
 
-
 const changeCurrentPassword = asyncHandler( async(req,res)=>{
     const {oldPassword, newPassword} = req.body
 
@@ -290,6 +289,7 @@ const changeCurrentPassword = asyncHandler( async(req,res)=>{
         throw new ApiError(400, "Invalid old password")
     }
 
+    //user object ke ander password wali field ko modify kar rahe he
     user.password = newPassword
     await user.save({validateBeforeSave: false})
 
@@ -297,7 +297,6 @@ const changeCurrentPassword = asyncHandler( async(req,res)=>{
     .status(200)
     .json(new ApiResponse(200, {}, "Password changed successfully"))
 })
-
 
 const getCurrentUser = asyncHandler(async(req, res) => {
     return res
@@ -308,7 +307,6 @@ const getCurrentUser = asyncHandler(async(req, res) => {
         "User fetched successfully"
     ))
 })
-
 
 const updateAccountDetails = asyncHandler(async(req, res) => {
     const {fullName, email} = req.body
@@ -333,9 +331,84 @@ const updateAccountDetails = asyncHandler(async(req, res) => {
     .status(200)
     .json(new ApiResponse(200, user, "Account details updated successfully"))
 });
+//Till now we have worked with text based data ie..Add, delete, update
 
+//now, we are working with files based data
+const updateUserAvatar = asyncHandler(async(req, res) => {
+    const avatarLocalPath = req.file?.path
 
+    if (!avatarLocalPath) {
+        throw new ApiError(400, "Avatar file is missing")
+    }
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser , updateAccountDetails}
+    //TODO: delete old image from database - assignment
+
+    const avatar = await uploadOnCloudinary(avatarLocalPath)
+
+    if (!avatar.url) {
+        throw new ApiError(400, "Error while uploading an avatar")
+        
+    }
+
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set:{
+                avatar: avatar.url
+            }
+        },
+        {new: true}
+    ).select("-password")
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, user, "Avatar image updated successfully")
+    )
+})
+
+const updateUserCoverImage = asyncHandler(async(req, res) => {
+    const coverImageLocalPath = req.file?.path
+
+    if (!coverImageLocalPath) {
+        throw new ApiError(400, "Cover image file is missing")
+    }
+
+    //TODO: delete old image from database - assignment
+    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+
+    if (!coverImage.url) {
+        throw new ApiError(400, "Error while uploading on avatar")
+        
+    }
+
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set:{
+                coverImage: coverImage.url
+            }
+        },
+        {new: true}
+    ).select("-password")
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, user, "Cover image updated successfully")
+    )
+})
+
+export { 
+    registerUser, 
+    loginUser, 
+    logoutUser, 
+    refreshAccessToken, 
+    changeCurrentPassword, 
+    getCurrentUser, 
+    updateAccountDetails, 
+    updateUserAvatar,
+    updateUserCoverImage
+}
 
 //testing controller through postman 
