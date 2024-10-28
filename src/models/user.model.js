@@ -10,7 +10,7 @@ const userSchema = new Schema({
         unique: true,
         lowercase: true,
         trim: true,
-        index: true
+        index: true //to make this searchable in db
     },
 
     email: {
@@ -59,13 +59,14 @@ const userSchema = new Schema({
 //ye pre middleware hook jaise hi data save ho rha hoga usse just pehle ye as a middleware chalega & password ko encrypt karega
 userSchema.pre("save", async function (next) {
     // since middleware he toh next flag ka access toh hona hi chahiye, & ager kaam hogya he toh is flag ko call karna padta hi ki ab is flag ko age pass kardo
-    if(!this.isModified("password")) return next(); //ager password update kia he user ne toh age mat badho kyuki uska password already encrypted hoga
+
+    if(!this.isModified("password")) return next(); //we need to encrypt password just once or if the user went to modify the password so, if password is not modified then do not encrypt it, just call the next middleware   
 
     this.password = await bcrypt.hash(this.password, 10)
     next()
 })
 
-//bycrypt even compare password as well
+//bycrypt even compare encrypted and userfriendly password of the same 
 userSchema.methods.isPasswordCorrect = async function(password){
     return await bcrypt.compare(password, this.password)
 }
@@ -74,7 +75,7 @@ userSchema.methods.isPasswordCorrect = async function(password){
 //working with jwt
 userSchema.methods.generateAccessToken = function(){
     return jwt.sign(
-        // sabse pehle to me ise dunga payload ki kya kya data ho us generated access token me
+        // sabse pehle to me ise dunga payload ki kya kya data hoga us generated access token me
         {
             //payload ka naam ya key bol sakte he : ye database se aa rahi he
             _id: this._id,
