@@ -7,7 +7,7 @@ class ApiError extends Error {
         errors = [],
         stack = ""
     ){
-        //overriding the constructor
+        //overriding the constructor message
         super(message)
         this.statusCode = statusCode 
         //statuscode ko override kardia mere statuscode se

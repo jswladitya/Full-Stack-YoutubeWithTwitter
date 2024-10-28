@@ -1,5 +1,6 @@
 //CONNECTING TO DATABASE
-// require('dotenv').config({path: './env'}) //modify to work with import
+// require('dotenv').config({path: './env'}) 
+//modify to work with import
 // so , just modify script in a dev script in package.json
 import dotenv from "dotenv"
 import connectDB from "./db/index.js"; //from db
@@ -9,11 +10,12 @@ import {app} from './app.js'
 dotenv.config({
     path: './.env'
 })
+//as soon as in your app import and configure dotenv 
 
 
-//since connectDb is async, so async method jab complete hota he toh technically promise bhi return karta he
+//since connectDB() is async method & so async method jab complete hota he toh technically promise bhi return karta he
 connectDB()
-// database to connect hogya but, hamari app ne us database ka use karte hue abhi listen karna shuru nhai kia tha
+// database to connect hogya but, hamare server ne us database ka use karte hue abhi listen karna shuru nhai kia tha
     .then(() => {
         app.listen(process.env.PORT || 8000, () => {
             console.log(`Server is listening at port : ${process.env.PORT}`);

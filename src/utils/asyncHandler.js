@@ -6,6 +6,7 @@ const asyncHandler =(requestHandler)=>{
 }
 
 export { asyncHandler }
+//this method will take a async function resolve it and return it
 
 
 
@@ -24,7 +25,7 @@ export { asyncHandler }
 
 
 //****TRY CATCH METHOD 
-//How to use high order function
+//How to use high order function -> wo functions jo parameters bhi functions lete he aur return bhi function hi karte he
 // const asyncHandler = () => {}
 // const asyncHandler = (function) => {() => {}}
 // const asyncHandler = (function) => async () => {}
