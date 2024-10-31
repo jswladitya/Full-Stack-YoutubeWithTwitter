@@ -16,7 +16,7 @@ export const verifyJWT = asyncHandler(async(req, _, next) => {
         }
     
         // access token ke ander user ka saara data hota he in encoded format
-        // aapke token ko decode ko decode wahi kar payega jsike pass wo secret key hoga
+        // aapke token ko decode wahi kar payega jsike pass wo secret key hoga
         const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
     
         // ab hamare pass user ka saara data he

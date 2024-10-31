@@ -43,11 +43,10 @@ const registerUser = asyncHandler(async (req, res) => {
 
 
     //lets begin
-    //1. get user details from frontend
+    //1. got these user details from frontend
     // yaha ham file handling nahi karrahe wo ham karenga directly routes me
     const { fullName, email, username, password } = req.body
     //form se ya direct json se data aa raha he to req.body ke ander data mil jayega
-    //ham postman se email bhej rahe as a request server pe & use print krwa rah he
     //    console.log("email :" , email);
 
 
@@ -72,7 +71,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
 
     // 4. check for images , check for avatar
-    // since we are using multer so multer bhi req.files ka access deta he
+    // since we are using multer so multer req.files ka access deta he
     const avatarLocalPath = req.files?.avatar[0]?.path;
     // avatar ka path jo multer ne upload kara he server pe wo hame mil jayega kyuki hamne mention kia he multer ke code me
 
@@ -138,7 +137,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
     // 1. req.body se data le aao
     const { email, username, password } = req.body
-    console.log(email);
+    // console.log(email);
 
     // 2. username or email check
     if (!(username || email)) {
@@ -231,6 +230,7 @@ const logoutUser = asyncHandler(async (req, res) => {
 
 
 // jab user login karta he toh us point per ek naya access token generate kia jata he us user ke lie wo ho pata he ager user ke pass ya uske browser me already refreshToken ho taki user ko baar baar apna username ya password na dena pade login karwane ke lie
+//coz yaha pe frontend wala endpoint pe ek aur req bhej ke access token ko refresh karwa leta he
 const refreshAccessToken = asyncHandler(async (req, res) => {
     const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
 
