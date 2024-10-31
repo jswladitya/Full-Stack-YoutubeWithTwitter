@@ -280,6 +280,12 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 })
 
 const changeCurrentPassword = asyncHandler(async (req, res) => {
+    // const { oldPassword, newPassword, confPassword } = req.body
+
+    // if(!(newPassword === confPassword)){
+    //     throw new ApiError(400, "Try entering the same password in both fields")
+    // }
+
     const { oldPassword, newPassword } = req.body
 
     const user = await User.findById(req.user?._id)
@@ -318,12 +324,13 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
     const user = await User.findByIdAndUpdate(
         req.user?._id,
         {
+            //mongoDB operator
             $set: {
-                fullName,
+                fullName: fullName,
                 email: email
             }
         },
-        { new: true }
+        { new: true } //update hone ke baad wali information return hoti he
 
     ).select("-password")
 
@@ -335,6 +342,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
 
 //now, we are working with files based data
 const updateUserAvatar = asyncHandler(async (req, res) => {
+    //here we are taking just one file so use req.file
     const avatarLocalPath = req.file?.path
 
     if (!avatarLocalPath) {
