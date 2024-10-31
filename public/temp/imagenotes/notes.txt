@@ -1,0 +1,42 @@
+STEP 1 : Setting up the project & repository
+    -> go to gitignore.io to setup the gitignore configuratons
+    -> since we want to use import syntax not require syntax so, made some modifications to package.json
+    -> installing dev dependencies like : 'nodemon' to reload the server in realtime AND prettier 
+
+STEP 2 : Setting up online mongoDB Database (5 min ka kaam) & adding link with no ending '/' to .env file
+
+STEP 3 : CONNECTING TO DATABASE PROFESSIONALLY
+    -> installing dependencies : mongoose, dotenv, express
+    -> Database se jabhi bat karte he time lagta he to always use async await & try catch
+    -> connecting Database in both index.js file
+
+STEP 4 : Setting up app.js
+    -> installing dependencies : cookie-parser , cors    
+    -> mostly middlewares ka used by using app.use ya koi configurations settings karni ho
+    -> middlewares : client ka request server tak pauchne se pehle hi bich me request ki validation karna & jab request valid hoga tabhi response client ko milegi server se
+
+STEP 5 : BUILDING UTILITY FILES (till 6:15)
+    -> har baar ek hi type ka functionality alag alag files me nahi likh sakte islie we make utility of the functionality , jisme method pass karoge aur wo utility apna wrapper laga ke kaam karke dedega     
+    -> making of asyncHandler -> ApiError + ApiResponse (api ke error aur api ke response ko standardized karna)    
+
+STEP 6 : Making of User & Video model (createdAt updatedAt ata he timestamps:true se)
+
+STEP 7 : File Uploading & Handling
+    -> Cloudinary : a service in which files are uploaded & in return it provides an link url of the same (we wrote file upload code to cloudinary)
+    -> multer : file uplaod happens through it jaha jaha file upload capabilities ki zaroorat hogi waha me multer ko inject karunga
+    -> multer working explained : multer ka use karte hue ham us file ko lenge user se, aur apne local server pe temperory us file ko rakh denge , phir cloudinary ka use karte hue us local server se file lenge aur use cloudinary ke server pe upload kardenge
+    -> writing a middleware code using multer (learn again)
+    -> TILL NOW WE HAVE DONE WITH OUR CONFIGUARATION SETTINGS
+
+STEP 8 : HTTP CRASH COURSE (Learn More about it) (learn DSA, Networking, Operating System)
+
+STEP 9 : Wrote register controller & user route
+    -> Access Token are short lived & Refresh Token are long lived
+    -> Example : imagine aapka login session 15 min me expire ho jaye due to security reasons to aapko fir 15 min baad password daalna padega aur login karna padega aisa na karna pade islie ager aapke pass refresh token he toh aap ek endpoint hit kardo to ager aapke pass jo refresh token he aur mere pass jo refresh token he wo dono same honge toh app automatically login ho jaoge& aapko me naya access token dedunga
+
+
+NOTE : 
+-> 1. "export default" ho raha ho tabhi ham man chaha naam de sakte he import karate samay 
+eg.., "export default registerUser" then "import registerUser from "
+
+-> 2. if "export {registerUser}" then, "import {registerUser} from" 
