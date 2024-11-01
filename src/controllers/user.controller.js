@@ -418,12 +418,15 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
     }
 
     const channel = await User.aggregate([
+        // in an array , every object is one stage/pipeline
         {
+            //like where clause, we did the filtering based upon the username we got from the url, now we have just one particular user document
             $match: {
                 username: username?.toLowerCase()
             }
         },
         {
+            //like join in SQL , we are left joining Subscription model 
             // assuming mera channel he & aise milega mere subscribers 
             $lookup: {
                 from: "subscriptions",
@@ -442,7 +445,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
             }
         },
         {
-            // user field me 2 fields aur add krdia
+            // original user object me 3 fields aur add krdia
             $addFields: {
                 // yaha we are counting the documents
                 subscribersCount: {
@@ -463,6 +466,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
             }
         },
         {
+            //showing the end result in the final document
             $project: {
                 fullName: 1,
                 username: 1,
@@ -489,20 +493,24 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
 
 
 const getWatchHistory = asyncHandler(async (req, res) => {
+    // req.user._id // ye deta he string wali id , but we want object wali id while working with aggregation pipelines
     const user = await User.aggregate([
         {
             $match: {
+                //here we got the user, lets go to his watchHistory now
                 _id: new mongoose.Types.ObjectId(req.user._id)
             }
         },
         {
             $lookup: {
+                //video model join toh ho jayega but usme user document nhi hoga islie we need to join user document as well to get video owner
                 from: "videos",
                 localField: "watchHistory",
                 foreignField: "_id",
                 as: "watchHistory",
                 pipeline: [
                     {
+                        //we are in video model
                         $lookup: {
                             from: "users",
                             localField: "owner",
@@ -510,6 +518,7 @@ const getWatchHistory = asyncHandler(async (req, res) => {
                             as: "owner",
                             pipeline: [
                                 {
+                                    //since owner filed is user object & user has so many fields but we need not to show all , we need to show necessary once 
                                     $project: {
                                         fullName: 1,
                                         username: 1,
@@ -521,6 +530,7 @@ const getWatchHistory = asyncHandler(async (req, res) => {
                     },
                     {
                         $addFields: {
+                            //existing field ko hi override kar rahe ,since owner filed is an array & we need the first element
                             owner: {
                                 $first: "$owner"
                             }
@@ -555,5 +565,3 @@ export {
     getUserChannelProfile,
     getWatchHistory
 }
-
-//testing controller through postman 
